@@ -1,0 +1,19 @@
+robot1 = {
+  "name": "Rocky",
+  "health": 100,
+  "speed": 20,
+  "tactics": ["punch", "punch", "laser", "missile"]
+}
+robot2 = {
+  "name": "Missile Bob",
+  "health": 100,
+  "speed": 21,
+  "tactics": ["missile", "missile", "missile", "missile"]
+}
+tactics = {
+  "punch": 20,
+  "laser": 30,
+  "missile": 35
+}
+
+fight(robot1, robot2, tactics)
