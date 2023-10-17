@@ -51,7 +51,6 @@ public class CodeWarsService {
         }
         this.setSavedRobots(validRobots);
         setFightDetails();
-        startTheGame();
     }
 
     private boolean isValidRobotStr(final String currentLine) {
