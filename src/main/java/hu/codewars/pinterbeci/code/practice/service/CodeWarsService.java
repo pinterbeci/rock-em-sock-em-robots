@@ -27,9 +27,9 @@ public class CodeWarsService {
     private Robot winnerRobot;
 
     public void getGameDataFromFile(final String data) {
-        final String replacedData = data.replaceAll("\\s", "");
-        final String regex = "robot\\d=|tactics=|fight";
-        final String[] splittedData = replacedData.split(regex);
+        final String regex = "robot\\d\\s=|tactics\\s=\\s|fight";
+        final String[] splittedData = data.split(regex);
+
         final List<Robot> validRobots = new ArrayList<>();
 
         for (String currentLine : splittedData) {
@@ -111,7 +111,7 @@ public class CodeWarsService {
             Integer secondRobotCurrentTacticValue = this.tactic.get(secondRobotCurrentTactic);
             starterRobot.setHealth(starterRobot.getHealth() - secondRobotCurrentTacticValue);
 
-            winner = getTheWinner(tactic, usedTacticElement, starterRobot, secondFighter);
+            winner = getTheWinner(this.tactic, usedTacticElement, starterRobot, secondFighter);
             if (winner != null) {
                 break;
             }
@@ -120,10 +120,12 @@ public class CodeWarsService {
     }
 
     private void printTheResultToConsole(final Robot winner) {
-        if ("Equality".contains(winner.getName()))
-            System.out.println("The fight was a draw.");
-        else
-            System.out.printf("%s has won the fight!", winner.getName());
+        if (winner != null) {
+            if ("Equality".contains(winner.getName()))
+                System.out.println("The fight was a draw.");
+            else
+                System.out.printf("%s has won the fight!", winner.getName());
+        }
     }
 
     private Robot getTheWinner(final Map<String, Integer> tactics, final int usedTacticElement, final Robot robot1, final Robot robot2) {

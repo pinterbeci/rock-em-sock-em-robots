@@ -9,7 +9,7 @@ public class Main {
         log.debug("Main class ready to run!");
         final DataReader dataReader = new DataReader();
         log.debug("DataReader initialized, and start read data!");
-        dataReader.readDataFromFile("game.txt");
+        dataReader.prepareData("game.txt");
         log.debug("Reading was succesfully!");
     }
 }

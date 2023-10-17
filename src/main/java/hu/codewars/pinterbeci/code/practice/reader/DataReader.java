@@ -30,7 +30,7 @@ public class DataReader {
         return resultStringBuilder.toString();
     }
 
-    public void readDataFromFile(final String fileName) {
+    public void prepareData(final String fileName) {
         try {
             final ClassLoader classLoader = getClass().getClassLoader();
             final InputStream inputStream = classLoader.getResourceAsStream(fileName);
