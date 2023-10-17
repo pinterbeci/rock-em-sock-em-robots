@@ -11,9 +11,16 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Robot {
+public class Robot implements Comparable<Robot> {
     private String name;
     private int health;
     private int speed;
     private List<String> tactics;
+
+    @Override
+    public int compareTo(Robot obj) {
+        if (obj == null)
+            return -1;
+        return Integer.compare(this.getSpeed(), obj.getSpeed());
+    }
 }

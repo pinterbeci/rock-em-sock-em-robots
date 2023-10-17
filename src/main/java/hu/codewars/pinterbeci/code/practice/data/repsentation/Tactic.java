@@ -4,5 +4,7 @@ import lombok.Data;
 
 @Data
 public class Tactic {
-    private Tactics value;
+    private String punch;
+    private String laser;
+    private String missile;
 }

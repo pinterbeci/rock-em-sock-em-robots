@@ -35,7 +35,7 @@ public class DataReader {
             final ClassLoader classLoader = getClass().getClassLoader();
             final InputStream inputStream = classLoader.getResourceAsStream(fileName);
             final String data = readFromInputStream(inputStream);
-            this.codeWarsService.getRobotsFromGame(data);
+            this.codeWarsService.getGameDataFromFile(data);
             this.codeWarsService.startTheGame();
         } catch (final Exception exception) {
             log.debug("An exception occurs: ", exception);
