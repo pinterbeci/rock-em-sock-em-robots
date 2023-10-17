@@ -112,7 +112,7 @@ public class CodeWarsService {
             Integer secondRobotCurrentTacticValue = this.tactic.get(secondRobotCurrentTactic);
             starterRobot.setHealth(starterRobot.getHealth() - secondRobotCurrentTacticValue);
 
-            winner = getWinner(tactic, usedTacticElement, starterRobot, secondFighter);
+            winner = getTheWinner(tactic, usedTacticElement, starterRobot, secondFighter);
             if (winner != null) {
                 break;
             }
@@ -127,7 +127,7 @@ public class CodeWarsService {
             System.out.printf("%s has won the fight!", winner.getName());
     }
 
-    private Robot getWinner(final Map<String, Integer> tactics, final int usedTacticElement, final Robot robot1, final Robot robot2) {
+    private Robot getTheWinner(final Map<String, Integer> tactics, final int usedTacticElement, final Robot robot1, final Robot robot2) {
         if (robot1.getHealth() <= 0 && robot2.getHealth() > 0)
             return robot2;
 
