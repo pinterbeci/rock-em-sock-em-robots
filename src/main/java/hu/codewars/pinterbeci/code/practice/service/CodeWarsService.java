@@ -89,7 +89,6 @@ public class CodeWarsService {
     }
 
     private void startFightUsingTactics() {
-        final Map<String, Integer> tacticsOfFight = this.fight.getTactic();
         Robot winner = null;
         final Robot starterRobot = getStarterRobot();
         final Robot secondFighter;
