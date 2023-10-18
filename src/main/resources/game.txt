@@ -8,7 +8,7 @@ robot2 = {
   "name": "Missile Bob",
   "health": 100,
   "speed": 21,
-  "tactics": ["missile", "missile", "missile", "missile"]
+  "tactics": ["punch", "punch", "laser", "missile"]
 }
 tactics = {
   "punch": 20,

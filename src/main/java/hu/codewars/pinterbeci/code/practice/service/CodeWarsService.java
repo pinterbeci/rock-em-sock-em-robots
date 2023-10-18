@@ -110,7 +110,6 @@ public class CodeWarsService {
         }
     }
 
-
     private boolean checkFightingDetails(final String fightingDetailsFromFile, final String... savedFightingDetails) {
         if (fightingDetailsFromFile == null || savedFightingDetails == null)
             return false;
@@ -122,8 +121,11 @@ public class CodeWarsService {
                 && fightingDetailsFromFile.contains(savedFightingDetails[2]);
     }
 
-
     public void startTheGame() {
+        determineFightersAndStartTheFight();
+    }
+
+    private void determineFightersAndStartTheFight() {
         final Fight currentGame = this.fight;
         Robot fighter1 = new Robot();
         Robot fighter2 = new Robot();
@@ -153,6 +155,7 @@ public class CodeWarsService {
         } else {
             secondFighter = fighter1;
         }
+
         int secondFighterCurrentTactic = 0;
         int usedTacticElement = 0;
         for (String starterRobotTactic : starterRobot.getTactics()) {
@@ -165,7 +168,7 @@ public class CodeWarsService {
             Integer secondRobotCurrentTacticValue = this.fight.getTactic().get(secondRobotCurrentTactic);
             starterRobot.setHealth(starterRobot.getHealth() - secondRobotCurrentTacticValue);
 
-            winner = getTheWinner(this.fight.getTactic(), usedTacticElement, starterRobot, secondFighter);
+            winner = getTheWinner(usedTacticElement, starterRobot, secondFighter);
             if (winner != null) {
                 break;
             }
@@ -182,14 +185,14 @@ public class CodeWarsService {
         }
     }
 
-    private Robot getTheWinner(final Map<String, Integer> tactics, final int usedTacticElement, final Robot robot1, final Robot robot2) {
+    private Robot getTheWinner(final int usedTacticElement, final Robot robot1, final Robot robot2) {
         if (robot1.getHealth() <= 0 && robot2.getHealth() > 0)
             return robot2;
 
         if (robot2.getHealth() <= 0 && robot1.getHealth() > 0)
             return robot1;
 
-        if (tactics.entrySet().size() == usedTacticElement)
+        if (robot1.getTactics().size() == usedTacticElement && robot2.getTactics().size() == usedTacticElement)
             return robot1.getHealth() == robot2.getHealth() ? new Robot("Equality", 0, 0, null) :
                     robot1.getHealth() > robot2.getHealth() ? robot1 : robot2;
 
