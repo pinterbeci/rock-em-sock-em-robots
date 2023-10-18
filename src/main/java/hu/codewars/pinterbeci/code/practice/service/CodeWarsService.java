@@ -8,8 +8,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,99 +23,149 @@ import java.util.Map;
 @Getter
 public class CodeWarsService {
 
-    private List<Robot> savedRobots;
-
-    private Map<String, Integer> tactic;
-
     private Fight fight;
 
     private Robot winnerRobot;
 
-    public void getGameDataFromFile(final String data) {
-        final String regex = "robot\\d\\s=|tactics\\s=\\s|fight";
-        final String[] splittedData = data.split(regex);
+    private Map<String, String> gameDataMap;
 
-        final List<Robot> validRobots = new ArrayList<>();
 
-        for (String currentLine : splittedData) {
-            final Gson gson = new Gson();
-            if (!currentLine.isEmpty()) {
-                try {
-                    if (this.isValidRobotStr(currentLine)) {
-                        final Robot robot = gson.fromJson(currentLine, Robot.class);
-                        validRobots.add(robot);
-                    } else if (this.isValidTacticStr(currentLine)) {
-                        Type typeOfTacticMap = new TypeToken<Map<String, Integer>>() {
-                        }.getType();
-                        this.tactic = gson.fromJson(currentLine, typeOfTacticMap);
+    public void start() throws IOException {
+        final ClassLoader classLoader = getClass().getClassLoader();
+        final InputStream inputStream = classLoader.getResourceAsStream("game.txt");
+        this.saveInputData(inputStream);
+    }
+
+    private void saveInputData(final InputStream inputStream) throws IOException {
+        try (BufferedReader br
+                     = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            StringBuilder stringBuilder;
+            String currentFightElementData;
+
+            this.gameDataMap = new HashMap<>();
+
+            while ((line = br.readLine()) != null) {
+
+                if (line.startsWith("robot")) {
+                    stringBuilder = new StringBuilder();
+                    final String currentRobotName = line.split(" ")[0];
+                    stringBuilder.append("{");
+
+                    while (!(line = br.readLine()).equals("}")) {
+                        stringBuilder.append(line);
                     }
-                } catch (final Exception exception) {
-                    log.debug(exception.getMessage());
+
+                    stringBuilder.append("}");
+                    currentFightElementData = stringBuilder.toString();
+                    this.gameDataMap.put(currentRobotName, currentFightElementData);
+                } else if (line.startsWith("tactics")) {
+                    stringBuilder = new StringBuilder();
+
+                    final String tacticsKeyName = line.split(" ")[0];
+                    stringBuilder.append("{");
+
+                    while (!(line = br.readLine()).equals("}")) {
+                        stringBuilder.append(line);
+                    }
+
+                    stringBuilder.append("}");
+                    currentFightElementData = stringBuilder.toString();
+                    this.gameDataMap.put(tacticsKeyName, currentFightElementData);
+
+                } else if (line.startsWith("fight")) {
+                    currentFightElementData = line.split("fight")[1];
+                    this.gameDataMap.put("fight", currentFightElementData);
                 }
             }
         }
-        this.setSavedRobots(validRobots);
-        setFightDetails();
+        convertData(this.gameDataMap);
     }
 
-    private boolean isValidRobotStr(final String currentLine) {
-        return (currentLine.contains("name") && currentLine.contains("health")
-                && currentLine.contains("speed") && currentLine.contains("tactics"));
-    }
-
-    private boolean isValidTacticStr(final String currentLine) {
-        return (currentLine.contains("punch") && currentLine.contains("laser")
-                && currentLine.contains("missile"));
-    }
-
-    private void setFightDetails() {
-        if (this.savedRobots != null && this.savedRobots.size() == 2) {
-            this.fight = new Fight();
-            this.fight.setFighter1(this.savedRobots.get(0));
-            this.fight.setFighter2(this.savedRobots.get(1));
+    private void convertData(final Map<String, String> dataMap) {
+        this.fight = new Fight();
+        Gson gson;
+        List<String> savedFightingDetails = new ArrayList<>();
+        for (Map.Entry<String, String> entry : dataMap.entrySet()) {
+            if ((entry.getKey()).startsWith("robot")) {
+                gson = new Gson();
+                Robot robot = gson.fromJson(entry.getValue(), Robot.class);
+                this.fight.getFighters().put(entry.getKey(), robot);
+                savedFightingDetails.add(entry.getKey());
+                this.fight.getFightersIdList().add(entry.getKey());
+            } else if ("tactics".equals(entry.getKey())) {
+                gson = new Gson();
+                Type typeOfTacticMap = new TypeToken<Map<String, Integer>>() {
+                }.getType();
+                Map<String, Integer> currentTactic = gson.fromJson(entry.getValue(), typeOfTacticMap);
+                this.fight.setTactic(currentTactic);
+                savedFightingDetails.add(entry.getKey());
+            } else if ("fight".equals(entry.getKey())) {
+                if (!checkFightingDetails(entry.getValue(), savedFightingDetails.toArray(new String[]{}))) {
+                    log.info("Data is not appropriate!");
+                } else {
+                    startTheGame();
+                }
+            }
         }
-        if (this.tactic != null) {
-            this.fight.setTactic(this.tactic);
-        }
     }
+
+
+    private boolean checkFightingDetails(final String fightingDetailsFromFile, final String... savedFightingDetails) {
+        if (fightingDetailsFromFile == null || savedFightingDetails == null)
+            return false;
+
+        if (savedFightingDetails.length < 3)
+            return false;
+
+        return fightingDetailsFromFile.contains(savedFightingDetails[0]) && fightingDetailsFromFile.contains(savedFightingDetails[1])
+                && fightingDetailsFromFile.contains(savedFightingDetails[2]);
+    }
+
 
     public void startTheGame() {
-        startFightUsingTactics();
+        final Fight currentGame = this.fight;
+        Robot fighter1 = new Robot();
+        Robot fighter2 = new Robot();
+        List<String> fightersIdList = currentGame.getFightersIdList();
+        if (fightersIdList != null && fightersIdList.size() == 2) {
+            fighter1 = currentGame.getFighters().get(fightersIdList.get(0));
+            fighter2 = currentGame.getFighters().get(fightersIdList.get(1));
+        }
+        startFightUsingTactics(fighter1, fighter2);
     }
 
-
-    private Robot getStarterRobot() {
-        final Fight currentGame = this.fight;
-        if (currentGame.getFighter1() != null) {
-            int comparingValue = currentGame.getFighter1().compareTo(currentGame.getFighter2());
-            return comparingValue > 0 ? currentGame.getFighter1() : currentGame.getFighter2();
+    private Robot getStarterRobot(final Robot fighter1, final Robot fighter2) {
+        if (fighter1 != null) {
+            int comparingValue = fighter1.compareTo(fighter2);
+            return comparingValue > 0 ? fighter1 : fighter2;
         }
         return new Robot();
     }
 
-    private void startFightUsingTactics() {
+    private void startFightUsingTactics(final Robot fighter1, final Robot fighter2) {
         Robot winner = null;
-        final Robot starterRobot = getStarterRobot();
+        final Robot starterRobot = getStarterRobot(fighter1, fighter2);
         final Robot secondFighter;
 
-        if (starterRobot.equals(this.fight.getFighter1())) {
-            secondFighter = this.fight.getFighter2();
+        if (starterRobot.equals(fighter1)) {
+            secondFighter = fighter2;
         } else {
-            secondFighter = this.fight.getFighter1();
+            secondFighter = fighter1;
         }
         int secondFighterCurrentTactic = 0;
         int usedTacticElement = 0;
         for (String starterRobotTactic : starterRobot.getTactics()) {
 
-            int starterRobotTacticValue = this.tactic.get(starterRobotTactic);
+            int starterRobotTacticValue = this.fight.getTactic().get(starterRobotTactic);
             usedTacticElement++;
             secondFighter.setHealth(secondFighter.getHealth() - starterRobotTacticValue);
 
             String secondRobotCurrentTactic = secondFighter.getTactics().get(secondFighterCurrentTactic++);
-            Integer secondRobotCurrentTacticValue = this.tactic.get(secondRobotCurrentTactic);
+            Integer secondRobotCurrentTacticValue = this.fight.getTactic().get(secondRobotCurrentTactic);
             starterRobot.setHealth(starterRobot.getHealth() - secondRobotCurrentTacticValue);
 
-            winner = getTheWinner(this.tactic, usedTacticElement, starterRobot, secondFighter);
+            winner = getTheWinner(this.fight.getTactic(), usedTacticElement, starterRobot, secondFighter);
             if (winner != null) {
                 break;
             }
@@ -140,5 +195,4 @@ public class CodeWarsService {
 
         return null;
     }
-
 }
