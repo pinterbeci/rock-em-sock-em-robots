@@ -1,8 +1,7 @@
 https://www.codewars.com/kata/566b490c8b164e03f8000002
 
 
-* ellenőrzésék elvégzése mindenképp kellene
-* illetve szerintem az adatok beolvasása nem a legmegfelelőbb, mivel nem pontosan van eltárolva,
-    gondolok itt arra, hogy egy 'fight' parancsban lehet két olyan robot neve van megadva, vagy esetleg olyan/olyanoké
-    aki/akik adata el sincs mentve
-* tehát az adatbeolvasást javítani szükséges
+* ellenőrzésék elvégzése mindenképp kellene, hogy ne szálljon el kivételekkel, hanem azt kiírni console-ra
+* json parser, ha nem tudom parse-olni a json-t, vagy nem megfelelő json
+* ha 'fight' parancsban olyan robot/tactics szerepel, amelyik nem lett mentve, vagy bekérve
+* log.info() használata

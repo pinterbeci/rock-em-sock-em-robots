@@ -5,8 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         final CodeWarsService codeWarsService = new CodeWarsService();
-        codeWarsService.start();
+        try {
+            codeWarsService.start();
+        } catch (final Exception exception) {
+            log.info(exception.getMessage());
+            log.info("The game was unsuppressed!");
+        }
+
+
     }
 }
